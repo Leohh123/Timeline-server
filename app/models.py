@@ -36,7 +36,7 @@ class Plan(models.Model):
     day = models.IntegerField(default=7)
 
     def __str__(self):
-        return f"{{title={self.title}, clock={self.clock}, day={self.day}}}".lower
+        return f"{{title={self.title}, clock={self.clock}, day={self.day}}}"
 
 
 class Record(models.Model):

@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from . import local
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,10 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+bm9t6fwc16*730l&9ge%my7q(wj8@xcfj=h+4@t6p*@yj)z9y'
+SECRET_KEY = local.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = local.DEBUG
 
 ALLOWED_HOSTS = ['*']
 
@@ -75,18 +77,7 @@ WSGI_APPLICATION = 'timeline.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
-        'ENGINE': 'django.db.backends.mysql',  # 数据库引擎
-        'NAME': 'timeline',  # 数据库名称
-        'HOST': '127.0.0.1',  # 数据库地址，本机 ip 地址 127.0.0.1
-        'PORT': 3306,  # 端口
-        'USER': 'timeline_admin',  # 数据库用户名
-        'PASSWORD': '123456',  # 数据库密码
-    }
-}
+DATABASES = local.DATABASES
 
 
 # Password validation
@@ -126,6 +117,7 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

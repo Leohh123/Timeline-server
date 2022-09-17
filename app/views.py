@@ -53,9 +53,14 @@ def task_now(request):
 
 
 def plan_list(request):
-    plans = Plan.objects.all().order_by("day", "clock")
-    plan_dicts = list(map(model_to_dict, plans))
-    return resp(plan_dicts)
+    now = datetime.now()
+    enabled_plans = Plan.objects.filter(
+        Q(day=now.weekday()) | Q(day=7)).order_by("clock")
+    disabled_plans = Plan.objects.filter(
+        ~Q(day=now.weekday()) & ~Q(day=7)).order_by("day", "clock")
+    enabled_dicts = list(map(model_to_dict, enabled_plans))
+    disabled_dicts = list(map(model_to_dict, disabled_plans))
+    return resp({"enabled": enabled_dicts, "disabled": disabled_dicts})
 
 
 def stage_now(request):
@@ -106,6 +111,20 @@ def stage_go(request):
     next_stage = _next_stage(now_stage.estimated)
     next_stage.save()
     return resp(model_to_dict(next_stage))
+
+
+def stage_jump(request):
+    plan = Plan.objects.get(id=int(request.POST["pid"]))
+    now = datetime.now()
+    estimated = now.replace(
+        hour=plan.clock.hour,
+        minute=plan.clock.minute,
+        second=plan.clock.second,
+        microsecond=plan.clock.microsecond
+    )
+    jump_stage = Stage(title=plan.title, estimated=estimated)
+    jump_stage.save()
+    return resp(model_to_dict(jump_stage))
 
 
 def obj_list(request):

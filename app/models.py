@@ -12,7 +12,7 @@ class Stage(models.Model):
         return self.actual
 
     def __str__(self):
-        return f"{{title={self.title}, estimated={self.estimated}, actual={self.actual}}}"
+        return f"{{id={self.id}, title={self.title}, estimated={self.estimated}, actual={self.actual}}}"
 
 
 class Task(models.Model):
@@ -27,7 +27,7 @@ class Task(models.Model):
         return self.head
 
     def __str__(self):
-        return f"{{title={self.title}, head={self.head}, tail={self.tail}, estimated={self.estimated}, actual={self.actual}, state={self.state}}}"
+        return f"{{id={self.id}, title={self.title}, head={self.head}, tail={self.tail}, estimated={self.estimated}, actual={self.actual}, state={self.state}}}"
 
 
 class Plan(models.Model):
@@ -36,7 +36,7 @@ class Plan(models.Model):
     day = models.IntegerField(default=7)
 
     def __str__(self):
-        return f"{{title={self.title}, clock={self.clock}, day={self.day}}}"
+        return f"{{id={self.id}, title={self.title}, clock={self.clock}, day={self.day}}}"
 
 
 class Record(models.Model):
@@ -45,4 +45,4 @@ class Record(models.Model):
     token = models.TextField()
 
     def __str__(self):
-        return f"{{moment={self.moment}, ip={self.ip}, token={self.token}}}"
+        return f"{{id={self.id}, moment={self.moment}, ip={self.ip}, token={self.token}}}"

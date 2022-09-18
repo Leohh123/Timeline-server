@@ -12,6 +12,7 @@ urlpatterns = [
     path("task/finish", views.task_finish),
     path("task/cancel", views.task_cancel),
     path("task/now", views.task_now),
+    path("comment/add", views.comment_add),
     path("plan/list", views.plan_list),
     path("obj/list", views.obj_list),
     path("record", views.record),

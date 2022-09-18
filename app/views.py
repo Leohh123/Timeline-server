@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.forms.models import model_to_dict
 from django.db.models import F, Q
 
-from .models import Stage, Task, Plan, Record
+from .models import Stage, Task, Comment, Plan, Record
 
 
 def resp(data, msg="ok", code=0):
@@ -15,7 +15,7 @@ def resp(data, msg="ok", code=0):
 def task_start(request):
     last_task = Task.objects.last()
     if last_task.state == 0:
-        raise Http404("Last task has not been completed yet")
+        return resp(None, "上一个任务尚未完成哦~", 1)
     task = Task(
         title=request.POST["title"],
         estimated=timedelta(minutes=int(request.POST["estimated"]))
@@ -27,7 +27,7 @@ def task_start(request):
 def _complete_task(new_state):
     task = Task.objects.last()
     if task.state != 0:
-        raise Http404("Task has been completed")
+        return resp(None, "任务已经完成过了哦~", 1)
     task.actual = datetime.now() - task.head
     task.tail = datetime.now()
     task.state = new_state
@@ -106,7 +106,7 @@ def stage_next(request):
 def stage_go(request):
     task = Task.objects.last()
     if task.state == 0:
-        raise Http404("There is still an unfinished task")
+        return resp(None, "还有尚未完成的任务哦~", 1)
     now_stage = Stage.objects.last()
     next_stage = _next_stage(now_stage.estimated)
     next_stage.save()
@@ -127,10 +127,23 @@ def stage_jump(request):
     return resp(model_to_dict(jump_stage))
 
 
+def comment_add(request):
+    token = request.COOKIES.get("token")
+    name = request.POST.get("name", "").strip()
+    if token == "123456":
+        name = "Leohh"
+    elif name == "":
+        return resp(None, "还不知道你叫什么呢~", 1)
+    elif name == "Leohh":
+        return resp(None, "不许用主人的名字！", 1)
+    comment = Comment(name=name, content=request.POST["content"])
+    comment.save()
+    return resp(model_to_dict(comment))
+
+
 def obj_list(request):
     start_time = datetime.fromtimestamp(int(request.GET["from"]))
     end_time = datetime.fromtimestamp(int(request.GET["to"]))
-    # print("###", start_time, end_time)
     objs = []
     objs.extend(Stage.objects.filter(
         actual__range=(start_time, end_time)
@@ -138,12 +151,14 @@ def obj_list(request):
     objs.extend(Task.objects.filter(
         head__range=(start_time, end_time)
     ))
+    objs.extend(Comment.objects.filter(
+        moment__range=(start_time, end_time)
+    ))
     objs.sort(key=lambda o: o.key())
     obj_dicts = list(map(lambda m: {
         "type": m.__class__.__name__.lower(),
         **model_to_dict(m)
     }, objs))
-    # print("####", obj_dicts)
     return resp(obj_dicts)
 
 
@@ -154,7 +169,6 @@ def record(request):
     else:
         ip = request.META.get("REMOTE_ADDR")
     token = request.COOKIES.get("token") or ""
-    # print("###", ip, "###", token)
     record = Record(ip=ip, token=token)
     record.save()
     return resp(model_to_dict(record))

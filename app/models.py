@@ -30,6 +30,18 @@ class Task(models.Model):
         return f"{{id={self.id}, title={self.title}, head={self.head}, tail={self.tail}, estimated={self.estimated}, actual={self.actual}, state={self.state}}}"
 
 
+class Comment(models.Model):
+    name = models.TextField()
+    content = models.TextField()
+    moment = models.DateTimeField(default=datetime.now)
+
+    def key(self):
+        return self.moment
+
+    def __str__(self):
+        return f"{{id={self.id}, name={self.name}, content={self.content}, moment={self.moment}}}"
+
+
 class Plan(models.Model):
     title = models.TextField()
     clock = models.TimeField()

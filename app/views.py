@@ -28,8 +28,9 @@ def _complete_task(new_state):
     task = Task.objects.last()
     if task.state != 0:
         return resp(None, "任务已经完成过了哦~", 1)
-    task.actual = datetime.now() - task.head
-    task.tail = datetime.now()
+    now = datetime.now()
+    task.actual = now - task.head
+    task.tail = now
     task.state = new_state
     task.save()
     return task
@@ -41,8 +42,13 @@ def task_finish(request):
 
 
 def task_cancel(request):
+    lastTask = Task.objects.last()
+    now = datetime.now()
+    if lastTask.state == 0 and now - lastTask.head < timedelta(minutes=1):
+        lastTask.delete()
+        return resp(None, u"已成功撤销任务")
     task = _complete_task(2)
-    return resp(model_to_dict(task))
+    return resp(None, u"已成功取消任务")
 
 
 def task_now(request):
@@ -106,7 +112,7 @@ def stage_next(request):
 def stage_go(request):
     task = Task.objects.last()
     if task.state == 0:
-        return resp(None, "还有尚未完成的任务哦~", 1)
+        return resp(None, u"还有尚未完成的任务哦~", 1)
     now_stage = Stage.objects.last()
     next_stage = _next_stage(now_stage.estimated)
     next_stage.save()
@@ -133,9 +139,9 @@ def comment_add(request):
     if token == "123456":
         name = "Leohh"
     elif name == "":
-        return resp(None, "还不知道你叫什么呢~", 1)
+        return resp(None, u"还不知道你叫什么呢~", 1)
     elif name == "Leohh":
-        return resp(None, "不许用主人的名字！", 1)
+        return resp(None, u"不许用主人的名字！", 1)
     comment = Comment(name=name, content=request.POST["content"])
     comment.save()
     return resp(model_to_dict(comment))

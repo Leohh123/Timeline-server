@@ -7,12 +7,13 @@ class Stage(models.Model):
     title = models.TextField()
     estimated = models.DateTimeField()
     actual = models.DateTimeField(default=datetime.now)
+    type = models.IntegerField()
 
     def key(self):
         return self.actual
 
     def __str__(self):
-        return f"{{id={self.id}, title={self.title}, estimated={self.estimated}, actual={self.actual}}}"
+        return f"{{id={self.id}, title={self.title}, estimated={self.estimated}, actual={self.actual}, type={self.type}}}"
 
 
 class Task(models.Model):
@@ -22,12 +23,13 @@ class Task(models.Model):
     estimated = models.DurationField()
     actual = models.DurationField(null=True, default=None)
     state = models.IntegerField(default=0)
+    type = models.IntegerField()
 
     def key(self):
         return self.head
 
     def __str__(self):
-        return f"{{id={self.id}, title={self.title}, head={self.head}, tail={self.tail}, estimated={self.estimated}, actual={self.actual}, state={self.state}}}"
+        return f"{{id={self.id}, title={self.title}, head={self.head}, tail={self.tail}, estimated={self.estimated}, actual={self.actual}, state={self.state}, type={self.type}}}"
 
 
 class Comment(models.Model):
@@ -46,9 +48,10 @@ class Plan(models.Model):
     title = models.TextField()
     clock = models.TimeField()
     day = models.IntegerField(default=7)
+    type = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{{id={self.id}, title={self.title}, clock={self.clock}, day={self.day}}}"
+        return f"{{id={self.id}, title={self.title}, clock={self.clock}, day={self.day}, type={self.type}}}"
 
 
 class Record(models.Model):

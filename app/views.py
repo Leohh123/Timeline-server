@@ -16,9 +16,11 @@ def task_start(request):
     last_task = Task.objects.last()
     if last_task.state == 0:
         return resp(None, "上一个任务尚未完成哦~", 1)
+    now_stage = Stage.objects.last()
     task = Task(
         title=request.POST["title"],
-        estimated=timedelta(minutes=int(request.POST["estimated"]))
+        estimated=timedelta(minutes=int(request.POST["estimated"])),
+        type=now_stage.type
     )
     task.save()
     return resp(model_to_dict(task))
@@ -87,7 +89,8 @@ def _next_stage(now_datetime):
             second=plan.clock.second,
             microsecond=plan.clock.microsecond
         )
-        stage = Stage(title=plan.title, estimated=now_estimated)
+        stage = Stage(title=plan.title,
+                      estimated=now_estimated, type=plan.type)
     else:
         now = datetime.now()
         plan = Plan.objects.filter(
@@ -99,7 +102,7 @@ def _next_stage(now_datetime):
             second=plan.clock.second,
             microsecond=plan.clock.microsecond
         )
-        stage = Stage(title=plan.title, estimated=estimated)
+        stage = Stage(title=plan.title, estimated=estimated, type=plan.type)
     return stage
 
 
@@ -128,7 +131,7 @@ def stage_jump(request):
         second=plan.clock.second,
         microsecond=plan.clock.microsecond
     )
-    jump_stage = Stage(title=plan.title, estimated=estimated)
+    jump_stage = Stage(title=plan.title, estimated=estimated, type=plan.type)
     jump_stage.save()
     return resp(model_to_dict(jump_stage))
 
@@ -162,7 +165,7 @@ def obj_list(request):
     ))
     objs.sort(key=lambda o: o.key())
     obj_dicts = list(map(lambda m: {
-        "type": m.__class__.__name__.lower(),
+        "component": m.__class__.__name__.lower(),
         **model_to_dict(m)
     }, objs))
     return resp(obj_dicts)
